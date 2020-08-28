@@ -11,7 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^26.4.2",
-    "nock": "^13.0.4"
+    "nock": "^13.0.4",
+    "aws-sdk-mock": "^5.1.0"
   },
   "dependencies": {
     "aws-sdk": "^2.741.0"
