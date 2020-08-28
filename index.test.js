@@ -23,6 +23,7 @@ describe("httpsRequest", () => {
         let res = await index.httpsRequest("https://httpbin.org/get");
         expect(res.statusCode).toEqual(200);
         expect(scope.isDone()).toEqual(true);
+        expect(nock.isDone()).toEqual(true);
     });
 
     test("クエリーパラメータを含む場合", async () => {
@@ -43,6 +44,30 @@ describe("httpsRequest", () => {
         let results = await Promise.all(promises);
         expect(results[0].statusCode).toEqual(400);
         expect(results[1].statusCode).toEqual(200);
-        expect(scope.isDone()).toEqual(true);
+        expect(nock.isDone()).toEqual(true);
+    });
+
+    test("scopeが2個ある場合", async () => {
+        const scope1 = nock("https://httpbin.org")
+            .get("/get")
+            .query({ a: "abc" })
+            .reply(200, {
+                message: "dummy",
+            })
+        ;
+        const scope2 = nock("https://example.com")
+            .get("/")
+            .reply(200, {
+                message: "dummy",
+            })
+        ;
+        let promises = [
+            index.httpsRequest("https://httpbin.org/get?a=abc"),
+            index.httpsRequest("https://example.com/"),
+        ];
+        let results = await Promise.all(promises);
+        expect(results[0].statusCode).toEqual(200);
+        expect(results[1].statusCode).toEqual(200);
+        expect(nock.isDone()).toEqual(true);
     });
 });
