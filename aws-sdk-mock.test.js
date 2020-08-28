@@ -1,12 +1,12 @@
 const nock = require("nock");
 const index = require("./index.js");
-const AWS = require("aws-sdk-mock");
+const AWSMock = require("aws-sdk-mock");
 
-AWS.mock("DynamoDB.DocumentClient", "put", function(params, callback) {
+AWSMock.mock("DynamoDB.DocumentClient", "put", function(params, callback) {
     callback(null, {});
 });
 
-AWS.mock("DynamoDB.DocumentClient", "query", function(params, callback) {
+AWSMock.mock("DynamoDB.DocumentClient", "query", function(params, callback) {
     callback(null, 
         {
             Items: [
