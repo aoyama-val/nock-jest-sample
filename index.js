@@ -1,5 +1,6 @@
 const http = require("http");
 const https = require("https");
+const AWS = require("aws-sdk");
 
 /**
  * 指定したサーバーにHTTP/HTTPSリクエストを送信し、レスポンスを返す。
@@ -75,6 +76,48 @@ exports.httpsRequest = function(url, _options, postData) {
         req.end();
     });
 };
+
+exports.dynamoDbPut = async function() {
+    const httpOptions = {
+        //proxy: "http://192.168.0.100:8888",
+        //connectTimeout: 500,
+        //timeout: 500,
+    };
+    const docClient = new AWS.DynamoDB.DocumentClient({ region: "ap-northeast-1", endpoint: "https://dynamodb.ap-northeast-1.amazonaws.com", httpOptions: httpOptions });
+    const item = {
+        category: "mogemoge",
+        key: "asd",
+        createdAt: new Date().toISOString(),
+    };
+    const params = {
+        TableName: "emot2bff-aoyama-study1",
+        Item: item,
+    };
+    return await docClient.put(params).promise();
+};
+
+exports.dynamoDbQuery = async function() {
+    // なぜかプロキシ（mitmproxy）を通しているとタイムアウトになる。中間者攻撃に対策されていると思われる。
+    const httpOptions = {
+        //proxy: "http://192.168.0.100:8888",
+        //connectTimeout: 500,
+        //timeout: 500,
+    };
+    const docClient = new AWS.DynamoDB.DocumentClient({ region: "ap-northeast-1", endpoint: "https://dynamodb.ap-northeast-1.amazonaws.com", httpOptions: httpOptions });
+    const params = {
+        TableName: "emot2bff-aoyama-study1",
+        KeyConditionExpression: "#category = :category",
+        ExpressionAttributeNames:{
+            "#category": "category"
+        },
+        ExpressionAttributeValues: {
+            ":category": "mogemoge",
+        },
+    };
+    let ret = await docClient.query(params).promise();
+    return ret;
+};
+
 
 //async function main() {
 //    let res = await exports.httpsRequest("https://httpbin.org/get");

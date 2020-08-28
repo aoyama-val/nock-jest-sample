@@ -74,4 +74,91 @@ describe("httpsRequest", () => {
         expect(results[1].statusCode).toEqual(200);
         expect(nock.isDone()).toEqual(true);
     });
+
+    test("DynamoDB putのテスト", async () => {
+        //nock('https://dynamodb.ap-northeast-1.amazonaws.com:443', {"encodedQueryParams":true})
+        //    .post('/', {"TableName":"emot2bff-aoyama-study1","Item":{"category":{"S":"mogemoge"},"key":{"S":"asd"},"createdAt":{"S":"2020-08-28T01:43:42.991Z"}}})
+        //    .reply(200, {}, [
+        //        'Server',
+        //        'Server',
+        //        'Date',
+        //        'Fri, 28 Aug 2020 01:43:43 GMT',
+        //        'Content-Type',
+        //        'application/x-amz-json-1.0',
+        //        'Content-Length',
+        //        '2',
+        //        'Connection',
+        //        'keep-alive',
+        //        'x-amzn-RequestId',
+        //        'TR12LBAR1FB4KIFAV51M0H9OQ7VV4KQNSO5AEMVJF66Q9ASUAAJG',
+        //        'x-amz-crc32',
+        //        '2745614147'
+        //    ]);
+    nock('https://dynamodb.ap-northeast-1.amazonaws.com:443', {"encodedQueryParams":true})
+      .post('/', {"TableName":"emot2bff-aoyama-study1","Item":{"category":{"S":"mogemoge"},"key":{"S":"asd"},"createdAt":{"S":"2020-08-28T01:49:22.064Z"}}})
+      .reply(200, {}, [
+      'Server',
+      'Server',
+      'Date',
+      'Fri, 28 Aug 2020 01:49:23 GMT',
+      'Content-Type',
+      'application/x-amz-json-1.0',
+      'Content-Length',
+      '2',
+      'Connection',
+      'keep-alive',
+      'x-amzn-RequestId',
+      'T3G14NRRC49G499MEI4LASQM6BVV4KQNSO5AEMVJF66Q9ASUAAJG',
+      'x-amz-crc32',
+      '2745614147'
+    ]);
+        let res = await index.dynamoDbPut();
+        expect(res).toEqual({});
+    }, 2000);
+
+    test("DynamoDB queryのテスト", async () => {
+        nock('https://dynamodb.ap-northeast-1.amazonaws.com:443', {"encodedQueryParams":true})
+            .post('/', {
+                "TableName": "emot2bff-aoyama-study1",
+                "KeyConditionExpression": "#category = :category",
+                "ExpressionAttributeNames": {
+                    "#category": "category"
+                },
+                "ExpressionAttributeValues": {
+                    ":category": {
+                        "S": "mogemoge"
+                    }
+                }
+            })
+            .reply(200, {"Count":1,"Items":[{"category":{"S":"mogemoge"},"key":{"S":"asd"},"createdAt":{"S":"2020-08-28T01:43:42.991Z"}}],"ScannedCount":1}, [
+                'Server',
+                'Server',
+                'Date',
+                'Fri, 28 Aug 2020 01:43:43 GMT',
+                'Content-Type',
+                'application/x-amz-json-1.0',
+                'Content-Length',
+                '131',
+                'Connection',
+                'keep-alive',
+                'x-amzn-RequestId',
+                '3C7GG0NNRLI81OVTKRS1HEU3TFVV4KQNSO5AEMVJF66Q9ASUAAJG',
+                'x-amz-crc32',
+                '953777335'
+            ]);
+        let res = await index.dynamoDbQuery();
+        expect(res).toEqual(
+            {
+                Items: [
+                    {
+                        category: 'mogemoge',
+                        key: 'asd',
+                        createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+                    }
+                ],
+                Count: 1,
+                ScannedCount: 1
+            }
+        );
+    }, 2000);
 });

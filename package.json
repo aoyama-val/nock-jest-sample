@@ -12,5 +12,8 @@
   "devDependencies": {
     "jest": "^26.4.2",
     "nock": "^13.0.4"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.741.0"
   }
 }
