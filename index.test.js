@@ -1,6 +1,10 @@
 const nock = require("nock");
 const index = require("./index.js");
 
+// モック化する代わりに実際に通信して内容をキャプチャする。
+// 通信内容はscopeの形式で標準出力に出力される。
+//nock.recorder.rec();
+
 describe("httpsRequest", () => {
     beforeAll(() => {
         nock.disableNetConnect();
